@@ -6,8 +6,13 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname)));
+
+// Configurar axios globalmente
+axios.defaults.headers.common['Expect'] = '';
+axios.defaults.timeout = 8000;
 
 const APIS = {
   yahooFinance: { baseUrl: "https://query1.finance.yahoo.com" },
@@ -38,7 +43,10 @@ async function getStockData(ticker) {
       `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}`,
       {
         params: { interval: '1d', range: '1y' },
-        headers: { 'User-Agent': 'Mozilla/5.0' },
+        headers: { 
+          'User-Agent': 'Mozilla/5.0',
+          'Expect': ''
+        },
         timeout: 8000
       }
     );
