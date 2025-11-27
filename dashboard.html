@@ -1,8 +1,3 @@
-# DASHBOARD HTML - CONECTA CON BACKEND (server.js)
-# Archivo: dashboard.html
-# Funciona con: node server.js corriendo en background
-# Acceso: http://localhost:3000
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -133,6 +128,7 @@
       border-radius: 8px;
       font-size: 14px;
       line-height: 1.5;
+      word-wrap: break-word;
     }
     
     .message.user .message-content {
@@ -408,18 +404,25 @@
     const backendStatus = document.getElementById('backendStatus');
     let currentMenu = 'europa';
     
-    // API Backend URL
-   const API_URL = '/api';
+    // API Backend URL - CORREGIDO
+    const API_URL = '/api';
     
     // ===== VERIFICAR BACKEND =====
     async function checkBackend() {
       try {
-        const response = await fetch(API_URL + '/health');
-        const data = await response.json();
-        backendStatus.innerHTML = '🟢 Activo';
+        const response = await fetch(API_URL + '/health', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'cors'
+        });
+        if (response.ok) {
+          backendStatus.innerHTML = '🟢 Activo';
+        } else {
+          backendStatus.innerHTML = '🔴 Offline';
+        }
       } catch (error) {
-        backendStatus.innerHTML = '🔴 Offline - Ejecuta: node server.js';
-        console.error('Backend no disponible');
+        backendStatus.innerHTML = '🔴 Offline';
+        console.error('Backend check failed:', error);
       }
     }
     
@@ -456,6 +459,14 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
+    // ===== REMOVER ÚLTIMO MENSAJE =====
+    function removeLastMessage() {
+      const messages = chatMessages.querySelectorAll('.message');
+      if (messages.length > 0) {
+        messages[messages.length - 1].remove();
+      }
+    }
+    
     // ===== ENVIAR MENSAJE =====
     async function sendMessage() {
       const text = userInput.value.trim();
@@ -482,6 +493,7 @@
           await procesarPreguntaGeneral(text);
         }
       } catch (error) {
+        removeLastMessage();
         addMessage('system', `❌ Error: ${error.message}`);
       }
     }
@@ -489,14 +501,23 @@
     // ===== ANALIZAR MERCADO =====
     async function analizarMercado(hora, market) {
       try {
-        // Extraer hora del texto
         const horaMatch = hora.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?|(\d{1,2})/i);
         const horaTexto = horaMatch ? horaMatch[0] : '8';
         
-        const response = await fetch(API_URL + `/market/${market}/${horaTexto}`);
+        const response = await fetch(API_URL + `/market/${market}/${horaTexto}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (!data.success) {
+          removeLastMessage();
           addMessage('system', `❌ Error: ${data.error}`);
           return;
         }
@@ -504,7 +525,7 @@
         // Procesar recomendaciones
         let resultado = `📊 <strong>Análisis ${market === 'europe' ? 'Europeo' : 'USA'} a las ${data.hour}</strong><br><br>`;
         resultado += `✅ ${data.total} activos analizados<br>`;
-        resultado += `🎯 Top 5 recomendaciones:<br><br>`;
+        resultado += `🎯 Top recomendaciones:<br><br>`;
         
         data.recommendations.slice(0, 5).forEach((rec, idx) => {
           resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
@@ -512,12 +533,10 @@
           resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
         });
         
-        // Remover el mensaje de loading
-        const messages = chatMessages.querySelectorAll('.message');
-        messages[messages.length - 1].remove();
-        
+        removeLastMessage();
         addMessage('system', resultado);
       } catch (error) {
+        removeLastMessage();
         addMessage('system', `❌ Error al obtener datos: ${error.message}`);
       }
     }
@@ -528,19 +547,19 @@
         const response = await fetch(API_URL + '/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ticker })
+          body: JSON.stringify({ ticker }),
+          mode: 'cors'
         });
         
         const data = await response.json();
         
         if (!data.success) {
+          removeLastMessage();
           addMessage('system', `❌ No se encontró ${ticker}`);
           return;
         }
         
-        // Remover loading
-        const messages = chatMessages.querySelectorAll('.message');
-        messages[messages.length - 1].remove();
+        removeLastMessage();
         
         let resultado = `📊 <strong>Análisis de ${data.ticker}</strong><br><br>`;
         resultado += `Precio: $${data.precio.toFixed(2)} (${data.cambio > 0 ? '⬆️' : '⬇️'} ${data.cambio.toFixed(2)}%)<br>`;
@@ -558,6 +577,7 @@
         
         addMessage('system', resultado);
       } catch (error) {
+        removeLastMessage();
         addMessage('system', `❌ Error: ${error.message}`);
       }
     }
@@ -565,17 +585,19 @@
     // ===== OBTENER NOTICIAS =====
     async function obtenerNoticias(ticker) {
       try {
-        const response = await fetch(API_URL + `/news/${ticker}`);
+        const response = await fetch(API_URL + `/news/${ticker}`, {
+          mode: 'cors'
+        });
+        
         const data = await response.json();
         
         if (!data.success) {
+          removeLastMessage();
           addMessage('system', `❌ Error: ${data.error}`);
           return;
         }
         
-        // Remover loading
-        const messages = chatMessages.querySelectorAll('.message');
-        messages[messages.length - 1].remove();
+        removeLastMessage();
         
         let resultado = `📰 <strong>Noticias de ${data.ticker}</strong><br><br>`;
         data.noticias.slice(0, 5).forEach((news, idx) => {
@@ -585,17 +607,15 @@
         
         addMessage('system', resultado);
       } catch (error) {
+        removeLastMessage();
         addMessage('system', `❌ Error: ${error.message}`);
       }
     }
     
     // ===== PROCESAR PREGUNTA GENERAL =====
     async function procesarPreguntaGeneral(text) {
-      // Remover loading
-      const messages = chatMessages.querySelectorAll('.message');
-      messages[messages.length - 1].remove();
-      
-      addMessage('system', `Tu pregunta: "${text}"<br><br>Para análisis específico, use:<br>• "Análisis Europa" / "Análisis USA"<br>• "AAPL", "MSFT", "NVDA" (stocks específicos)<br>• "Noticias de AAPL" (para noticias)`);
+      removeLastMessage();
+      addMessage('system', `Tu pregunta: "${text}"<br><br>Para análisis específico, usa:<br>• "Análisis Europa" / "Análisis USA"<br>• Tickers: "AAPL", "MSFT", "NVDA"<br>• "Noticias de AAPL"`);
     }
     
     // ===== INIT =====
