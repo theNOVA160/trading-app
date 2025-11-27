@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trading Dashboard - Datos Reales</title>
+  <title>Trading Dashboard v4 - Detector de Oportunidades</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     :root {
       --primary: #2180A0;
       --secondary: #1a2332;
@@ -15,312 +14,72 @@
       --warning: #a84b2f;
       --error: #c01530;
     }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--secondary);
-      color: var(--text);
-      overflow: hidden;
-    }
-    
-    .container {
-      display: flex;
-      height: 100vh;
-      gap: 12px;
-      padding: 12px;
-    }
-    
-    /* ===== LEFT PANEL ===== */
-    .panel-left {
-      width: 280px;
-      background: #243447;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .panel-header {
-      padding: 16px;
-      background: rgba(33, 128, 160, 0.15);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--secondary); color: var(--text); overflow: hidden; }
+    .container { display: flex; height: 100vh; gap: 12px; padding: 12px; }
+    .panel-left { width: 280px; background: #243447; border-radius: 8px; display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .panel-header { padding: 16px; background: rgba(33, 128, 160, 0.15); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .panel-header h2 { font-size: 16px; margin-bottom: 4px; }
     .panel-header p { font-size: 11px; color: rgba(232, 237, 239, 0.6); }
-    
-    .menu-section {
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .menu-section h3 {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: rgba(232, 237, 239, 0.5);
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-    
-    .menu-item {
-      padding: 12px;
-      margin-bottom: 6px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .menu-item:hover {
-      background: rgba(33, 128, 160, 0.2);
-      border-color: var(--primary);
-    }
-    
-    .menu-item.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      font-weight: 500;
-    }
-    
-    .menu-item.submenu {
-      padding-left: 24px;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-    
-    .sector-label {
-      font-size: 10px;
-      padding: 6px 12px;
-      color: rgba(232, 237, 239, 0.6);
-      margin: 8px 0 4px 0;
-    }
-    
-    .select-control {
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 13px;
-      margin: 8px 0;
-      width: 100%;
-    }
-    
-    .select-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: rgba(255,255,255,0.08);
-    }
-    
-    /* ===== CENTER PANEL ===== */
-    .panel-center {
-      flex: 1;
-      background: #243447;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    
-    .message {
-      display: flex;
-      gap: 8px;
-      animation: slideIn 0.3s ease-out;
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
+    .menu-section { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .menu-section h3 { font-size: 10px; text-transform: uppercase; color: rgba(232, 237, 239, 0.5); margin-bottom: 8px; letter-spacing: 0.5px; }
+    .menu-item { padding: 12px; margin-bottom: 6px; background: rgba(255,255,255,0.05); border: 1px solid transparent; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .menu-item:hover { background: rgba(33, 128, 160, 0.2); border-color: var(--primary); }
+    .menu-item.active { background: var(--primary); border-color: var(--primary); font-weight: 500; }
+    .select-control { padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text); font-size: 13px; margin: 8px 0; width: 100%; }
+    .select-control:focus { outline: none; border-color: var(--primary); background: rgba(255,255,255,0.08); }
+    .panel-center { flex: 1; background: #243447; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .message { display: flex; gap: 8px; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .message.user { justify-content: flex-end; }
     .message.system { justify-content: flex-start; }
-    
-    .message-content {
-      max-width: 70%;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.5;
-      word-wrap: break-word;
-    }
-    
-    .message.user .message-content {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .message.system .message-content {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .sector-info {
-      background: rgba(50, 184, 198, 0.1);
-      border-left: 3px solid var(--primary);
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 4px;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-    
-    .chat-input-area {
-      padding: 12px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      gap: 8px;
-    }
-    
-    .chat-input {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      padding: 10px 12px;
-      color: var(--text);
-      font-size: 14px;
-      resize: none;
-      max-height: 80px;
-    }
-    
-    .chat-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: rgba(255,255,255,0.08);
-    }
-    
-    .btn-send {
-      padding: 10px 16px;
-      background: var(--primary);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    
+    .message-content { max-width: 75%; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
+    .message.user .message-content { background: var(--primary); color: white; }
+    .message.system .message-content { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); }
+    .oportunidad { background: rgba(50, 184, 152, 0.1); border-left: 4px solid var(--success); padding: 12px; margin: 8px 0; border-radius: 6px; font-size: 13px; }
+    .urgencia-alta { background: rgba(192, 21, 47, 0.15); color: #ff6b6b; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+    .urgencia-media { background: rgba(168, 75, 47, 0.15); color: var(--warning); padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+    .urgencia-baja { background: rgba(98, 108, 113, 0.15); color: #a0aec0; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+    .chat-input-area { padding: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px; }
+    .chat-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px 12px; color: var(--text); font-size: 14px; resize: none; max-height: 80px; }
+    .chat-input:focus { outline: none; border-color: var(--primary); background: rgba(255,255,255,0.08); }
+    .btn-send { padding: 10px 16px; background: var(--primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: 500; transition: 0.2s; }
     .btn-send:hover { background: #1a6a7f; }
     .btn-send:active { transform: scale(0.95); }
-    
-    /* ===== RIGHT PANEL ===== */
-    .panel-right {
-      width: 300px;
-      background: #243447;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .panel-right-header {
-      padding: 16px;
-      background: rgba(50, 184, 198, 0.1);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
+    .panel-right { width: 300px; background: #243447; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .panel-right-header { padding: 16px; background: rgba(50, 184, 198, 0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .panel-right-header h3 { font-size: 14px; margin-bottom: 4px; }
-    
-    .panel-right-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-    }
-    
-    .metric-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    
-    .metric-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: rgba(232, 237, 239, 0.6);
-      margin-bottom: 4px;
-    }
-    
-    .metric-value {
-      font-size: 18px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    .panel-right-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .metric-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+    .metric-label { font-size: 11px; text-transform: uppercase; color: rgba(232, 237, 239, 0.6); margin-bottom: 4px; }
+    .metric-value { font-size: 18px; font-weight: 600; }
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    #criteriaPanel { display: none; padding: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+    #criteriaPanel button { width: 100%; padding: 6px; margin-bottom: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--text); cursor: pointer; font-size: 11px; transition: 0.2s; }
+    #criteriaPanel button:hover { background: rgba(33, 128, 160, 0.2); }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- LEFT PANEL -->
     <div class="panel-left">
       <div class="panel-header">
         <h2>📊 Trading Dashboard</h2>
-        <p>Datos Reales en Vivo v2.0</p>
+        <p>Detector de Oportunidades v4</p>
       </div>
       
       <div class="menu-section">
-        <h3>Mercados por Hora</h3>
-        <div class="menu-item active" onclick="selectMenu('europa', this)">
-          <span>🌅</span> Europa (8 AM)
-        </div>
-        <div class="menu-item" onclick="selectMenu('usa', this)">
-          <span>🌙</span> USA (2:30 PM)
-        </div>
+        <h3>Mercados</h3>
+        <div class="menu-item active" onclick="selectMenu('europa', this)"><span>🌅</span> Europa</div>
+        <div class="menu-item" onclick="selectMenu('usa', this)"><span>🌙</span> USA</div>
       </div>
       
       <div class="menu-section">
-        <h3>Análisis por Sector</h3>
+        <h3>Sectores</h3>
         <select class="select-control" id="sectorSelect" onchange="selectSector(this.value)">
           <option value="">Seleccionar sector...</option>
           <option value="tech">💻 Tecnología</option>
@@ -330,366 +89,292 @@
           <option value="retail">🛒 Retail</option>
           <option value="industrial">🏭 Industrial</option>
         </select>
-        <div id="sectorInfo" style="display: none;" class="sector-info"></div>
       </div>
       
       <div class="menu-section">
-        <h3>Análisis Custom</h3>
-        <input type="text" id="customStocks" class="select-control" placeholder="Ej: AAPL,MSFT,GOOGL" />
-        <button onclick="analizarCustom()" style="width: 100%; padding: 8px; margin-top: 8px; background: var(--primary); border: none; border-radius: 6px; color: white; cursor: pointer;">
-          🔍 Analizar
-        </button>
+        <h3>Custom</h3>
+        <input type="text" id="customStocks" class="select-control" placeholder="AAPL,MSFT,GOOGL" />
+        <button onclick="analizarCustom()" style="width: 100%; padding: 8px; background: var(--primary); border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 12px; margin-top: 4px;">🔍 Buscar</button>
       </div>
       
       <div class="menu-section">
-        <h3>Sistema</h3>
-        <div class="menu-item" onclick="selectMenu('ayuda', this)">
-          <span>❓</span> Ayuda
-        </div>
+        <h3>🔍 Scanner</h3>
+        <button onclick="scannerRapido()" style="width: 100%; padding: 10px; margin-bottom: 8px; background: linear-gradient(135deg, #2180A0, #1a6a7f); border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: 600;">⚡ Top 15</button>
+        <button onclick="openScannerCriteria()" style="width: 100%; padding: 10px; background: rgba(50, 184, 152, 0.2); border: 1px solid var(--success); border-radius: 6px; color: var(--success); cursor: pointer; font-size: 13px; font-weight: 600;">🎯 Criterios</button>
+      </div>
+      
+      <div id="criteriaPanel">
+        <button onclick="scannerCriteria('rsi_oversold')">RSI Sobrevendido</button>
+        <button onclick="scannerCriteria('high_volume')">Alto Volumen</button>
+        <button onclick="scannerCriteria('reversal')">Reversiones</button>
+        <button onclick="scannerCriteria('bullish_trend')">Tendencia Alcista</button>
+        <button onclick="scannerCriteria('undervalued')">Subvalorados</button>
+        <button onclick="scannerCriteria('momentum')">Momentum Fuerte</button>
       </div>
     </div>
     
-    <!-- CENTER PANEL -->
     <div class="panel-center">
       <div class="chat-messages" id="chatMessages">
         <div class="message system">
           <div class="message-content">
-            👋 <strong>¡Bienvenido Trading Dashboard v2!</strong><br><br>
-            <strong>Nuevas opciones:</strong><br>
-            • 📈 Análisis por hora (Europa/USA)<br>
-            • 🎯 Análisis por sector (Tech, Banca, etc)<br>
-            • 🔧 Stocks personalizados<br>
-            • 📊 Datos reales en vivo<br>
-            • 💡 Reasoning automático<br><br>
-            <strong>¿Por qué elijo esos stocks?</strong><br>
-            Cada opción analiza empresas líderes en su sector con alto volumen y datos confiables.
+            <strong>🤖 Trading Dashboard v4</strong><br><br>
+            ✅ Análisis por hora (Europa/USA)<br>
+            ✅ Análisis por sector<br>
+            ✅ Stocks personalizados<br>
+            ✅ Scanner automático (50 stocks)<br>
+            ✅ 6 criterios de búsqueda<br><br>
+            <strong>Escribe la hora o elige una opción</strong>
           </div>
         </div>
       </div>
-      
       <div class="chat-input-area">
-        <textarea class="chat-input" id="userInput" placeholder="Escribe pregunta o ticker..." rows="1"></textarea>
+        <textarea class="chat-input" id="userInput" placeholder="Escribe hora o ticker..." rows="1"></textarea>
         <button class="btn-send" onclick="sendMessage()">→</button>
       </div>
     </div>
     
-    <!-- RIGHT PANEL -->
     <div class="panel-right">
       <div class="panel-right-header">
-        <h3>📊 Métricas</h3>
-        <p style="font-size: 11px; color: rgba(232,237,239,0.6);">En tiempo real</p>
+        <h3>📊 Estado</h3>
+        <p style="font-size: 11px; color: rgba(232,237,239,0.6);">En vivo</p>
       </div>
-      
-      <div class="panel-right-body" id="metricsPanel">
+      <div class="panel-right-body">
         <div class="metric-card">
-          <div class="metric-label">Estado del Sistema</div>
-          <div class="metric-value">🟢 Conectado</div>
+          <div class="metric-label">Sistema</div>
+          <div class="metric-value">🟢 Activo</div>
         </div>
-        
         <div class="metric-card">
-          <div class="metric-label">Backend (Node.js)</div>
-          <div id="backendStatus">
-            <span class="loading"></span> Verificando...
-          </div>
+          <div class="metric-label">Backend</div>
+          <div id="backendStatus"><span class="loading"></span> Conectando...</div>
         </div>
-        
         <div class="metric-card">
-          <div class="metric-label">Versión</div>
-          <div class="metric-value">v2.0</div>
+          <div class="metric-label">Última Búsqueda</div>
+          <div id="lastSearch" class="metric-value">--</div>
         </div>
-        
         <div class="metric-card">
-          <div class="metric-label">Última Actualización</div>
-          <div id="lastUpdate" class="metric-value">--</div>
+          <div class="metric-label">Oportunidades</div>
+          <div id="oppCount" class="metric-value">0</div>
         </div>
       </div>
     </div>
   </div>
   
   <script>
-    const userInput = document.getElementById('userInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const backendStatus = document.getElementById('backendStatus');
     const API_URL = '/api';
     let currentMenu = 'europa';
     let currentSector = null;
     
-    // ===== VERIFICAR BACKEND =====
     async function checkBackend() {
       try {
-        const response = await fetch(API_URL + '/health', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          mode: 'cors'
-        });
-        if (response.ok) {
-          backendStatus.innerHTML = '🟢 Activo';
-        } else {
-          backendStatus.innerHTML = '🔴 Offline';
-        }
+        const response = await fetch(API_URL + '/health', { mode: 'cors' });
+        document.getElementById('backendStatus').innerHTML = response.ok ? '🟢 Activo' : '🔴 Offline';
       } catch (error) {
-        backendStatus.innerHTML = '🔴 Offline';
+        document.getElementById('backendStatus').innerHTML = '🔴 Offline';
       }
     }
     
-    // ===== SELECCIONAR MENÚ =====
     function selectMenu(menu, element) {
-      if (element) {
-        document.querySelectorAll('.menu-item:not(.submenu)').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-      }
+      document.querySelectorAll('.menu-item:not(.submenu)').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
       currentMenu = menu;
       currentSector = null;
-      
-      const mensajes = {
-        europa: '🌅 <strong>Análisis Europa - 8 AM</strong><br><br><strong>¿Por qué estos stocks?</strong><br>SAP, ASML, LVMH, SIEMENS, UNILEVER, HSBC, SHELL, SANOFI<br><br>Empresas líderes europeas con:<br>✓ Alto volumen de negociación<br>✓ Datos históricos confiables<br>✓ Diversificación sectorial<br>✓ Presencia global<br><br>Escribe la hora (ej: "8") para actualizar análisis.',
-        usa: '🌙 <strong>Análisis USA - 2:30 PM</strong><br><br><strong>¿Por qué estos stocks?</strong><br>AAPL, MSFT, GOOGL, AMZN, NVDA, TSLA, META, NFLX<br><br>Megacaps tecnológicas con:<br>✓ Capitalización > $1 trilión<br>✓ Volumen extremadamente alto<br>✓ Líderes en IA e innovación<br>✓ Datos de Yahoo Finance verificados<br><br>Escribe la hora (ej: "14") para actualizar.',
-        ayuda: '❓ <strong>Guía de Uso</strong><br><br><strong>1. Mercados por Hora:</strong><br>Análisis automático de 8 stocks cada uno. Datos en vivo de Yahoo Finance.<br><br><strong>2. Análisis por Sector:</strong><br>Elige un sector y verás empresas líderes de ese área.<br><br><strong>3. Custom:</strong><br>Escribe tickers separados por comas (AAPL,TSLA,MSFT)<br><br><strong>Score 0-150:</strong><br>0-65: Esperar | 65-90: Especulativo | 90-110: Moderado | 110+: Agresivo'
-      };
-      
-      addMessage('system', mensajes[menu] || 'Opción seleccionada');
+      const msg = menu === 'europa' ? '🌅 <strong>Europa</strong><br>Escribe la hora' : '🌙 <strong>USA</strong><br>Escribe la hora';
+      addMessage('system', msg);
     }
     
-    // ===== SELECCIONAR SECTOR =====
     async function selectSector(sectorKey) {
       if (!sectorKey) return;
-      
       currentSector = sectorKey;
       currentMenu = null;
-      
       document.querySelectorAll('.menu-item:not(.submenu)').forEach(el => el.classList.remove('active'));
-      
       addMessage('system', '<span class="loading"></span> Cargando sector...');
-      
       try {
         const response = await fetch(API_URL + `/sectores`, { mode: 'cors' });
         const data = await response.json();
         const sector = data.sectores.find(s => s.id === sectorKey);
-        
         removeLastMessage();
-        addMessage('system', `<strong>🎯 Sector: ${sector.nombre}</strong><br><br>${sector.descripcion}<br><br>Stocks: ${sector.stocks} empresas líderes<br><br>Escribe hora (ej: "9") para analizar.`);
-        
-        document.getElementById('sectorInfo').innerHTML = `<strong>${sector.nombre}</strong><br>${sector.descripcion}`;
-        document.getElementById('sectorInfo').style.display = 'block';
+        addMessage('system', `<strong>🎯 ${sector.nombre}</strong><br>${sector.descripcion}<br><br>Escribe la hora`);
       } catch (error) {
         removeLastMessage();
         addMessage('system', `❌ Error: ${error.message}`);
       }
     }
     
-    // ===== AGREGAR MENSAJE =====
     function addMessage(type, content) {
+      const chatMessages = document.getElementById('chatMessages');
       const messageEl = document.createElement('div');
       messageEl.className = `message ${type}`;
-      
       const contentEl = document.createElement('div');
       contentEl.className = 'message-content';
       contentEl.innerHTML = content.replace(/\n/g, '<br>');
-      
       messageEl.appendChild(contentEl);
       chatMessages.appendChild(messageEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-      
-      document.getElementById('lastUpdate').innerHTML = new Date().toLocaleTimeString('es-ES');
+      document.getElementById('lastSearch').innerHTML = new Date().toLocaleTimeString('es-ES');
     }
     
-    // ===== REMOVER ÚLTIMO MENSAJE =====
     function removeLastMessage() {
+      const chatMessages = document.getElementById('chatMessages');
       const messages = chatMessages.querySelectorAll('.message');
-      if (messages.length > 0) {
-        messages[messages.length - 1].remove();
-      }
+      if (messages.length > 0) messages[messages.length - 1].remove();
     }
     
-    // ===== ENVIAR MENSAJE =====
     async function sendMessage() {
-      const text = userInput.value.trim();
+      const text = document.getElementById('userInput').value.trim();
       if (!text) return;
-      
       addMessage('user', text);
-      userInput.value = '';
+      document.getElementById('userInput').value = '';
       addMessage('system', '<span class="loading"></span> Analizando...');
-      
       try {
+        let url;
         if (currentSector) {
-          await analizarSector(text, currentSector);
+          url = API_URL + `/market/sector/${currentSector}/${text}`;
         } else if (currentMenu === 'europa') {
-          await analizarMercado(text, 'europe');
+          url = API_URL + `/market/europe/${text}`;
         } else if (currentMenu === 'usa') {
-          await analizarMercado(text, 'usa');
+          url = API_URL + `/market/usa/${text}`;
         } else {
-          await procesarTickerDirecto(text);
+          const ticker = text.match(/[A-Z]{1,4}/)?.[0];
+          if (!ticker) {
+            removeLastMessage();
+            addMessage('system', '💡 Escribe: Europa, USA, sector o ticker (AAPL)');
+            return;
+          }
+          const response = await fetch(API_URL + '/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker }),
+            mode: 'cors'
+          });
+          const data = await response.json();
+          removeLastMessage();
+          if (!data.success) {
+            addMessage('system', '❌ No encontrado');
+            return;
+          }
+          let resultado = `<strong>${data.ticker}</strong> - $${data.precio}<br>${data.recomendacion}<br><strong>${data.accion}</strong><br><br>`;
+          data.razones.forEach(r => resultado += `${r.icon} ${r.texto}<br>`);
+          addMessage('system', resultado);
+          document.getElementById('oppCount').innerHTML = data.score >= 60 ? '1' : '0';
+          return;
         }
+        const response = await fetch(url, { mode: 'cors' });
+        const data = await response.json();
+        removeLastMessage();
+        if (!data.success) {
+          addMessage('system', `❌ Error: ${data.error}`);
+          return;
+        }
+        let resultado = `📊 <strong>${data.market || data.sector || 'Análisis'}</strong><br>✅ ${data.total}<br><br>`;
+        data.recommendations.forEach((rec, idx) => {
+          let urgClass = rec.urgencia.includes('MÁXIMA') || rec.urgencia.includes('Alta') ? 'urgencia-alta' : rec.urgencia.includes('Media') ? 'urgencia-media' : 'urgencia-baja';
+          resultado += `<div class="oportunidad"><strong>${idx+1}. ${rec.ticker}</strong> - ${rec.score}/150<br><span class="${urgClass}">${rec.urgencia}</span><br>${rec.accion}<br><small>Entry: $${rec.entrada} | Target: $${rec.target}</small></div>`;
+        });
+        addMessage('system', resultado);
+        document.getElementById('oppCount').innerHTML = data.recommendations.length;
       } catch (error) {
         removeLastMessage();
         addMessage('system', `❌ Error: ${error.message}`);
       }
     }
     
-    // ===== ANALIZAR SECTOR =====
-    async function analizarSector(hora, sector) {
+    function openScannerCriteria() {
+      const panel = document.getElementById('criteriaPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    async function scannerRapido() {
+      addMessage('system', '<span class="loading"></span> 🔍 Escaneando 50 stocks...');
       try {
-        const response = await fetch(API_URL + `/market/sector/${sector}/${hora}`, { mode: 'cors' });
-        
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
+        const response = await fetch(API_URL + '/scanner/quick', { mode: 'cors' });
         const data = await response.json();
-        
+        removeLastMessage();
         if (!data.success) {
-          removeLastMessage();
           addMessage('system', `❌ Error: ${data.error}`);
           return;
         }
-        
-        removeLastMessage();
-        
-        let resultado = `📊 <strong>${data.sectorInfo.descripcion}</strong><br><br>`;
-        resultado += `✅ ${data.total} empresas analizadas<br>`;
-        resultado += `🎯 Top recomendaciones:<br><br>`;
-        
-        data.recommendations.slice(0, 5).forEach((rec, idx) => {
-          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
-          resultado += `   ${rec.recomendacion}<br>`;
-          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
-        });
-        
-        addMessage('system', resultado);
-      } catch (error) {
-        removeLastMessage();
-        addMessage('system', `❌ Error al obtener datos: ${error.message}`);
-      }
-    }
-    
-    // ===== ANALIZAR MERCADO =====
-    async function analizarMercado(hora, market) {
-      try {
-        const response = await fetch(API_URL + `/market/${market}/${hora}`, { mode: 'cors' });
-        
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-          removeLastMessage();
-          addMessage('system', `❌ Error: ${data.error}`);
+        let resultado = `<strong>⚡ TOP ${data.opportunities_found} OPORTUNIDADES</strong><br>Escaneados: ${data.total_scanned}<br><br>`;
+        if (data.opportunities_found === 0) {
+          resultado += 'Sin oportunidades claras';
+          addMessage('system', resultado);
           return;
         }
-        
-        removeLastMessage();
-        
-        let resultado = `📊 <strong>Análisis ${market === 'europe' ? 'Europeo' : 'USA'} - ${data.hour}</strong><br><br>`;
-        resultado += `✅ ${data.total} activos analizados<br>`;
-        resultado += `🎯 Top recomendaciones:<br><br>`;
-        
-        data.recommendations.slice(0, 5).forEach((rec, idx) => {
-          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
-          resultado += `   ${rec.recomendacion}<br>`;
-          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
+        data.recommendations.forEach((rec, idx) => {
+          let urgClass = rec.urgencia.includes('MÁXIMA') || rec.urgencia.includes('Alta') ? 'urgencia-alta' : rec.urgencia.includes('Media') ? 'urgencia-media' : 'urgencia-baja';
+          resultado += `<div class="oportunidad"><strong>#${idx+1} ${rec.ticker}</strong><br><span class="${urgClass}">${rec.urgencia}</span><br>${rec.accion}<br><small>$${rec.entrada} → $${rec.target}</small></div>`;
         });
-        
         addMessage('system', resultado);
+        document.getElementById('oppCount').innerHTML = data.opportunities_found;
       } catch (error) {
         removeLastMessage();
-        addMessage('system', `❌ Error al obtener datos: ${error.message}`);
+        addMessage('system', `❌ Error: ${error.message}`);
       }
     }
     
-    // ===== ANALIZAR CUSTOM =====
+    async function scannerCriteria(criteria) {
+      const names = { 'rsi_oversold': '📉 RSI < 30', 'high_volume': '📊 Vol > 1.8x', 'reversal': '🔄 Reversiones', 'bullish_trend': '📈 Tendencia Alcista', 'undervalued': '💰 P/E < 20', 'momentum': '🚀 +3%' };
+      addMessage('system', `<span class="loading"></span> Buscando ${names[criteria]}...`);
+      try {
+        const response = await fetch(API_URL + `/scanner/by-criteria/${criteria}`, { mode: 'cors' });
+        const data = await response.json();
+        removeLastMessage();
+        if (!data.success) {
+          addMessage('system', `❌ Error`);
+          return;
+        }
+        let resultado = `<strong>${names[criteria]}</strong><br>Encontrados: ${data.matching}<br><br>`;
+        if (data.matching === 0) {
+          resultado += 'Sin resultados';
+          addMessage('system', resultado);
+          return;
+        }
+        data.recommendations.forEach((rec, idx) => {
+          let urgClass = rec.urgencia.includes('MÁXIMA') || rec.urgencia.includes('Alta') ? 'urgencia-alta' : rec.urgencia.includes('Media') ? 'urgencia-media' : 'urgencia-baja';
+          resultado += `<div class="oportunidad"><strong>${rec.ticker}</strong><br><span class="${urgClass}">${rec.urgencia}</span><br>${rec.score}/150<br><small>Entry: $${rec.entrada}</small></div>`;
+        });
+        addMessage('system', resultado);
+        document.getElementById('oppCount').innerHTML = data.matching;
+      } catch (error) {
+        removeLastMessage();
+        addMessage('system', `❌ Error`);
+      }
+    }
+    
     async function analizarCustom() {
       const stocks = document.getElementById('customStocks').value.trim();
       if (!stocks) {
-        addMessage('system', '❌ Ingresa al menos un ticker');
+        addMessage('system', '❌ Ingresa tickers');
         return;
       }
-      
       addMessage('user', `Analizando: ${stocks}`);
-      addMessage('system', '<span class="loading"></span> Cargando datos personalizados...');
-      
+      addMessage('system', '<span class="loading"></span> Analizando...');
       try {
         const response = await fetch(API_URL + `/market/custom/now`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stocks: stocks }),
+          body: JSON.stringify({ stocks }),
           mode: 'cors'
         });
-        
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
         const data = await response.json();
-        
+        removeLastMessage();
         if (!data.success) {
-          removeLastMessage();
-          addMessage('system', `❌ Error: ${data.error}`);
+          addMessage('system', `❌ Error`);
           return;
         }
-        
-        removeLastMessage();
-        
-        let resultado = `🔧 <strong>Análisis Custom</strong><br><br>`;
-        resultado += `✅ ${data.total} stocks analizados<br><br>`;
-        
+        let resultado = `🔧 <strong>${data.total} stocks</strong><br><br>`;
         data.recommendations.forEach((rec, idx) => {
-          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
-          resultado += `   ${rec.recomendacion}<br>`;
-          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
+          let urgClass = rec.urgencia.includes('MÁXIMA') || rec.urgencia.includes('Alta') ? 'urgencia-alta' : rec.urgencia.includes('Media') ? 'urgencia-media' : 'urgencia-baja';
+          resultado += `<div class="oportunidad"><strong>${rec.ticker}</strong><br><span class="${urgClass}">${rec.urgencia}</span><br>${rec.accion}<br><small>$${rec.entrada}</small></div>`;
         });
-        
         addMessage('system', resultado);
+        document.getElementById('oppCount').innerHTML = data.recommendations.length;
       } catch (error) {
         removeLastMessage();
-        addMessage('system', `❌ Error: ${error.message}`);
+        addMessage('system', `❌ Error`);
       }
     }
     
-    // ===== PROCESAR TICKER DIRECTO =====
-    async function procesarTickerDirecto(text) {
-      const tickerMatch = text.match(/[A-Z]{1,4}/);
-      if (!tickerMatch) {
-        removeLastMessage();
-        addMessage('system', '💡 Usa: Europa, USA, sector, o ticker (AAPL, MSFT, etc)');
-        return;
-      }
-      
-      try {
-        const response = await fetch(API_URL + '/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ticker: tickerMatch[0] }),
-          mode: 'cors'
-        });
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-          removeLastMessage();
-          addMessage('system', `❌ Stock no encontrado`);
-          return;
-        }
-        
-        removeLastMessage();
-        
-        let resultado = `📊 <strong>${data.ticker}</strong><br><br>`;
-        resultado += `Precio: $${data.precio.toFixed(2)} (${data.cambio > 0 ? '⬆️' : '⬇️'} ${data.cambio.toFixed(2)}%)<br>`;
-        resultado += `Score: ${data.score}/150 ${data.recomendacion}<br>`;
-        resultado += `Confianza: ${data.confianza}%<br><br>`;
-        resultado += `<strong>Setup:</strong><br>`;
-        resultado += `Entrada: $${data.entrada}<br>`;
-        resultado += `Target 1: $${data.target1} | Target 2: $${data.target2}<br>`;
-        resultado += `Stop Loss: $${data.stopLoss}<br><br>`;
-        resultado += `<strong>Reasoning:</strong><br>`;
-        data.detalles.forEach(d => {
-          resultado += `${d.puntos > 0 ? '✓' : '✗'} ${d.factor}: ${d.puntos > 0 ? '+' : ''}${d.puntos}<br>`;
-        });
-        
-        addMessage('system', resultado);
-      } catch (error) {
-        removeLastMessage();
-        addMessage('system', `❌ Error: ${error.message}`);
-      }
-    }
-    
-    // ===== INIT =====
-    userInput.addEventListener('keydown', (e) => {
+    document.getElementById('userInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
