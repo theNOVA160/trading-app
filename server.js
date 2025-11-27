@@ -61,7 +61,7 @@ function detectTrend(prices, period = 5) {
 function detectReversal(prices) {
   if (prices.length < 3) return null;
   const last3 = prices.slice(-3);
-  if (last3 > last3 && last3 > last3 && last3 > last3) return 'upside_reversal';
+  if (last3[0] > last3[1] && last3[1] > last3[2] && last3[2] > last3[1]) return 'upside_reversal';
   return null;
 }
 
@@ -74,10 +74,10 @@ async function getStockData(ticker) {
       timeout: 8000
     });
     
-    const data = response.data.chart.result;
+    const data = response.data.chart.result[0];
     const quote = data.meta;
-    const closes = data.indicators.quote.close;
-    const volumes = data.indicators.quote.volume;
+    const closes = data.indicators.quote[0].close;
+    const volumes = data.indicators.quote[0].volume;
     
     const currentPrice = closes[closes.length - 1];
     const previousClose = closes[closes.length - 2] || currentPrice;
