@@ -21,6 +21,40 @@ const APIS = {
   newsapi: { apiKey: process.env.NEWSAPI_KEY || "demo", baseUrl: "https://newsapi.org/v2" }
 };
 
+// ====== SECTORES Y DESCRIPCIONES ======
+const SECTORES = {
+  tech: {
+    stocks: ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'META', 'ASML', 'NFLX', 'AMD'],
+    descripcion: 'Tecnología de alto crecimiento. Empresas líderes en software, semiconductores e IA con fuerte demanda.',
+    market: 'usa'
+  },
+  banks: {
+    stocks: ['JPM', 'BAC', 'WFC', 'GS', 'MS', 'BBVA', 'SANTANDER', 'ING'],
+    descripcion: 'Sector bancario. Instituciones financieras globales con volumen alto y estabilidad.',
+    market: 'mixed'
+  },
+  energy: {
+    stocks: ['XOM', 'CVX', 'COP', 'MPC', 'SHELL', 'BP', 'TTE', 'ENB'],
+    descripcion: 'Energía e hidrocarburos. Productores de petróleo y gas con dividendos atractivos.',
+    market: 'mixed'
+  },
+  pharma: {
+    stocks: ['JNJ', 'PFE', 'AZN', 'MRK', 'RHHBY', 'SANOFI', 'NOVARTIS', 'GSK'],
+    descripcion: 'Farmacéutica. Empresas de healthcare con investigación en medicinas innovadoras.',
+    market: 'mixed'
+  },
+  retail: {
+    stocks: ['AMZN', 'WMT', 'COST', 'TJX', 'INDITEX', 'ALLP', 'MC', 'ASAI'],
+    descripcion: 'Retail y consumo. Minoristas con presencia omnicanal y crecimiento digital.',
+    market: 'mixed'
+  },
+  industrial: {
+    stocks: ['CAT', 'BA', 'HON', 'ITM', 'SIEMENS', 'ABB', 'EOAN', 'BMCE'],
+    descripcion: 'Industrial y manufactura. Empresas de maquinaria, defensa e infraestructura.',
+    market: 'mixed'
+  }
+};
+
 function calculateRSI(prices, period = 14) {
   if (prices.length < period) return null;
   let gains = 0;
@@ -278,6 +312,93 @@ app.get('/api/news/:ticker', async (req, res) => {
   }
 });
 
+// ====== ENDPOINT SECTOR ======
+app.get('/api/market/sector/:sector/:hour', async (req, res) => {
+  try {
+    const { sector, hour } = req.params;
+    const sectorKey = sector.toLowerCase();
+    
+    if (!SECTORES[sectorKey]) {
+      return res.status(400).json({ success: false, error: 'Sector no encontrado' });
+    }
+    
+    const stocks = SECTORES[sectorKey].stocks;
+    const results = await Promise.all(stocks.map(t => analyzeStock(t)));
+    const validos = results.filter(s => s && s.success);
+    validos.sort((a, b) => b.score - a.score);
+    
+    res.json({
+      success: true,
+      hour: hour,
+      sector: sectorKey,
+      sectorInfo: SECTORES[sectorKey],
+      timestamp: new Date().toISOString(),
+      total: validos.length,
+      recommendations: validos.slice(0, 10).map(s => ({
+        ticker: s.ticker,
+        score: s.score,
+        recomendacion: s.recomendacion,
+        entrada: s.entrada,
+        target: s.target2,
+        stopLoss: s.stopLoss
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ====== ENDPOINT CUSTOM ======
+app.post('/api/market/custom/:hour', async (req, res) => {
+  try {
+    const { hour } = req.params;
+    let { stocks } = req.body;
+    
+    if (!stocks || stocks.length === 0) {
+      return res.status(400).json({ success: false, error: 'Se requieren stocks' });
+    }
+    
+    // Convertir a array si es string
+    if (typeof stocks === 'string') {
+      stocks = stocks.split(',').map(s => s.trim().toUpperCase());
+    }
+    
+    const results = await Promise.all(stocks.map(t => analyzeStock(t)));
+    const validos = results.filter(s => s && s.success);
+    validos.sort((a, b) => b.score - a.score);
+    
+    res.json({
+      success: true,
+      hour: hour,
+      custom: true,
+      timestamp: new Date().toISOString(),
+      total: validos.length,
+      recommendations: validos.map(s => ({
+        ticker: s.ticker,
+        score: s.score,
+        recomendacion: s.recomendacion,
+        entrada: s.entrada,
+        target: s.target2,
+        stopLoss: s.stopLoss
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ====== ENDPOINT SECTORES INFO ======
+app.get('/api/sectores', (req, res) => {
+  const info = Object.keys(SECTORES).map(key => ({
+    id: key,
+    nombre: key.charAt(0).toUpperCase() + key.slice(1),
+    descripcion: SECTORES[key].descripcion,
+    stocks: SECTORES[key].stocks.length
+  }));
+  res.json({ success: true, sectores: info });
+});
+
+// ====== DEFAULT MARKET ENDPOINTS (COMPATIBILITY) ======
 app.get('/api/market/europe/:hour', async (req, res) => {
   try {
     const hour = req.params.hour;
