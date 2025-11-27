@@ -1,11 +1,6 @@
-# ============================================================================
-# BACKEND NODE.JS - OBTIENE DATOS REALES DE INTERNET
-# ============================================================================
-# Archivo: server.js
-# Instalación: npm install express cors axios dotenv
-# Uso: node server.js
-# Acceso: http://localhost:3000
-# ============================================================================
+// ============================================================================
+// BACKEND NODE.JS - OBTIENE DATOS REALES DE INTERNET
+// ============================================================================
 
 const express = require('express');
 const cors = require('cors');
