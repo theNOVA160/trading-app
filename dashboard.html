@@ -1,0 +1,614 @@
+# DASHBOARD HTML - CONECTA CON BACKEND (server.js)
+# Archivo: dashboard.html
+# Funciona con: node server.js corriendo en background
+# Acceso: http://localhost:3000
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Dashboard - Datos Reales</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #2180A0;
+      --secondary: #1a2332;
+      --text: #e8edef;
+      --success: #32b898;
+      --warning: #a84b2f;
+      --error: #c01530;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--secondary);
+      color: var(--text);
+      overflow: hidden;
+    }
+    
+    .container {
+      display: flex;
+      height: 100vh;
+      gap: 12px;
+      padding: 12px;
+    }
+    
+    /* ===== LEFT PANEL ===== */
+    .panel-left {
+      width: 280px;
+      background: #243447;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .panel-header {
+      padding: 16px;
+      background: rgba(33, 128, 160, 0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .panel-header h2 { font-size: 16px; margin-bottom: 4px; }
+    .panel-header p { font-size: 11px; color: rgba(232, 237, 239, 0.6); }
+    
+    .menu-section {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .menu-section h3 {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(232, 237, 239, 0.5);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .menu-item {
+      padding: 12px;
+      margin-bottom: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .menu-item:hover {
+      background: rgba(33, 128, 160, 0.2);
+      border-color: var(--primary);
+    }
+    
+    .menu-item.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      font-weight: 500;
+    }
+    
+    /* ===== CENTER PANEL ===== */
+    .panel-center {
+      flex: 1;
+      background: #243447;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .message {
+      display: flex;
+      gap: 8px;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user { justify-content: flex-end; }
+    .message.system { justify-content: flex-start; }
+    
+    .message-content {
+      max-width: 70%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .message.user .message-content {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .message.system .message-content {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .chat-input-area {
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 8px;
+    }
+    
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 14px;
+      resize: none;
+      max-height: 80px;
+    }
+    
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .btn-send {
+      padding: 10px 16px;
+      background: var(--primary);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    
+    .btn-send:hover { background: #1a6a7f; }
+    .btn-send:active { transform: scale(0.95); }
+    
+    /* ===== RIGHT PANEL ===== */
+    .panel-right {
+      width: 300px;
+      background: #243447;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .panel-right-header {
+      padding: 16px;
+      background: rgba(50, 184, 198, 0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .panel-right-header h3 { font-size: 14px; margin-bottom: 4px; }
+    
+    .panel-right-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .metric-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: rgba(232, 237, 239, 0.6);
+      margin-bottom: 4px;
+    }
+    
+    .metric-value {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .badge.success { background: rgba(50, 184, 152, 0.2); color: var(--success); }
+    .badge.warning { background: rgba(168, 75, 47, 0.2); color: var(--warning); }
+    .badge.error { background: rgba(192, 21, 47, 0.2); color: var(--error); }
+    
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .recommendation {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    
+    .recommendation h4 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    
+    .rec-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .rec-detail:last-child { border-bottom: none; }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- LEFT PANEL -->
+    <div class="panel-left">
+      <div class="panel-header">
+        <h2>📊 Trading Dashboard</h2>
+        <p>Datos Reales en Vivo v1.0</p>
+      </div>
+      
+      <div class="menu-section">
+        <h3>Mercados</h3>
+        <div class="menu-item active" onclick="selectMenu('europa', this)">
+          <span>🌅</span> Análisis Europeo
+        </div>
+        <div class="menu-item" onclick="selectMenu('usa', this)">
+          <span>🌙</span> Análisis USA
+        </div>
+      </div>
+      
+      <div class="menu-section">
+        <h3>Análisis</h3>
+        <div class="menu-item" onclick="selectMenu('earnings', this)">
+          <span>📈</span> Earnings
+        </div>
+        <div class="menu-item" onclick="selectMenu('aprendizajes', this)">
+          <span>🧠</span> Ver Aprendizajes
+        </div>
+        <div class="menu-item" onclick="selectMenu('historico', this)">
+          <span>📋</span> Histórico
+        </div>
+      </div>
+      
+      <div class="menu-section">
+        <h3>Sistema</h3>
+        <div class="menu-item" onclick="selectMenu('config', this)">
+          <span>⚙️</span> Configuración
+        </div>
+        <div class="menu-item" onclick="selectMenu('ayuda', this)">
+          <span>❓</span> Ayuda
+        </div>
+      </div>
+    </div>
+    
+    <!-- CENTER PANEL -->
+    <div class="panel-center">
+      <div class="chat-messages" id="chatMessages">
+        <div class="message system">
+          <div class="message-content">
+            👋 <strong>¡Bienvenido al Trading Dashboard!</strong><br><br>
+            Tengo datos REALES de internet en vivo. Puedo:<br>
+            • Analizar mercados europeos y USA<br>
+            • Mostrar scores 0-150 con reasoning<br>
+            • Aprender de tus resultados<br>
+            • Mejorar automáticamente<br><br>
+            <strong>¿Qué quieres hacer?</strong>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="userInput" placeholder="Escribe tu pregunta..." rows="1"></textarea>
+        <button class="btn-send" onclick="sendMessage()">→</button>
+      </div>
+    </div>
+    
+    <!-- RIGHT PANEL -->
+    <div class="panel-right">
+      <div class="panel-right-header">
+        <h3>📊 Métricas</h3>
+        <p style="font-size: 11px; color: rgba(232,237,239,0.6);">En tiempo real</p>
+      </div>
+      
+      <div class="panel-right-body" id="metricsPanel">
+        <div class="metric-card">
+          <div class="metric-label">Estado del Sistema</div>
+          <div class="metric-value">
+            🟢 Conectado
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-label">Backend (Node.js)</div>
+          <div id="backendStatus">
+            <span class="loading"></span> Verificando...
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-label">Accuracy Histórica</div>
+          <div class="metric-value">--</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-label">Win Rate</div>
+          <div class="metric-value">--</div>
+        </div>
+        
+        <div id="recommendationsPanel"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const userInput = document.getElementById('userInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const backendStatus = document.getElementById('backendStatus');
+    let currentMenu = 'europa';
+    
+    // API Backend URL
+    const API_URL = 'http://localhost:3000/api';
+    
+    // ===== VERIFICAR BACKEND =====
+    async function checkBackend() {
+      try {
+        const response = await fetch(API_URL + '/health');
+        const data = await response.json();
+        backendStatus.innerHTML = '🟢 Activo';
+      } catch (error) {
+        backendStatus.innerHTML = '🔴 Offline - Ejecuta: node server.js';
+        console.error('Backend no disponible');
+      }
+    }
+    
+    // ===== SELECCIONAR MENÚ =====
+    function selectMenu(menu, element) {
+      document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      currentMenu = menu;
+      
+      const mensajes = {
+        europa: '🌅 Análisis de Mercado Europeo\n\nEscribe la hora (ej: "8 AM") o pregunta directa.',
+        usa: '🌙 Análisis de Mercado USA\n\nEscribe la hora (ej: "2:30 PM") o pregunta directa.',
+        earnings: '📈 Análisis Post-Earnings\n\nPregunta sobre earnings recientes de un stock.',
+        aprendizajes: '🧠 Ver Aprendizajes\n\nMostraré tu evolución de accuracy y mejoras aplicadas.',
+        historico: '📋 Histórico\n\nÚltimos 30 días de análisis y resultados.',
+        config: '⚙️ Configuración\n\nAjustes del sistema y API keys.',
+        ayuda: '❓ Ayuda\n\nGuía de cómo usar el dashboard.'
+      };
+      
+      addMessage('system', mensajes[menu] || 'Opción seleccionada');
+    }
+    
+    // ===== AGREGAR MENSAJE AL CHAT =====
+    function addMessage(type, content) {
+      const messageEl = document.createElement('div');
+      messageEl.className = `message ${type}`;
+      
+      const contentEl = document.createElement('div');
+      contentEl.className = 'message-content';
+      contentEl.innerHTML = content.replace(/\n/g, '<br>');
+      
+      messageEl.appendChild(contentEl);
+      chatMessages.appendChild(messageEl);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // ===== ENVIAR MENSAJE =====
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      
+      addMessage('user', text);
+      userInput.value = '';
+      
+      // Mostrar loading
+      addMessage('system', '<span class="loading"></span> Buscando datos en internet...');
+      
+      try {
+        // Procesar según el menú
+        if (currentMenu === 'europa') {
+          await analizarMercado(text, 'europe');
+        } else if (currentMenu === 'usa') {
+          await analizarMercado(text, 'usa');
+        } else if (text.includes('AAPL') || text.includes('MSFT') || text.includes('NVDA')) {
+          await analizarStock(text.match(/[A-Z]{1,4}/)[0]);
+        } else if (text.toLowerCase().includes('noticias')) {
+          const ticker = text.match(/[A-Z]{1,4}/)?.[0];
+          if (ticker) await obtenerNoticias(ticker);
+        } else {
+          await procesarPreguntaGeneral(text);
+        }
+      } catch (error) {
+        addMessage('system', `❌ Error: ${error.message}`);
+      }
+    }
+    
+    // ===== ANALIZAR MERCADO =====
+    async function analizarMercado(hora, market) {
+      try {
+        // Extraer hora del texto
+        const horaMatch = hora.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?|(\d{1,2})/i);
+        const horaTexto = horaMatch ? horaMatch[0] : '8';
+        
+        const response = await fetch(API_URL + `/market/${market}/${horaTexto}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+          addMessage('system', `❌ Error: ${data.error}`);
+          return;
+        }
+        
+        // Procesar recomendaciones
+        let resultado = `📊 <strong>Análisis ${market === 'europe' ? 'Europeo' : 'USA'} a las ${data.hour}</strong><br><br>`;
+        resultado += `✅ ${data.total} activos analizados<br>`;
+        resultado += `🎯 Top 5 recomendaciones:<br><br>`;
+        
+        data.recommendations.slice(0, 5).forEach((rec, idx) => {
+          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
+          resultado += `   ${rec.recomendacion}<br>`;
+          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
+        });
+        
+        // Remover el mensaje de loading
+        const messages = chatMessages.querySelectorAll('.message');
+        messages[messages.length - 1].remove();
+        
+        addMessage('system', resultado);
+      } catch (error) {
+        addMessage('system', `❌ Error al obtener datos: ${error.message}`);
+      }
+    }
+    
+    // ===== ANALIZAR STOCK INDIVIDUAL =====
+    async function analizarStock(ticker) {
+      try {
+        const response = await fetch(API_URL + '/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          addMessage('system', `❌ No se encontró ${ticker}`);
+          return;
+        }
+        
+        // Remover loading
+        const messages = chatMessages.querySelectorAll('.message');
+        messages[messages.length - 1].remove();
+        
+        let resultado = `📊 <strong>Análisis de ${data.ticker}</strong><br><br>`;
+        resultado += `Precio: $${data.precio.toFixed(2)} (${data.cambio > 0 ? '⬆️' : '⬇️'} ${data.cambio.toFixed(2)}%)<br>`;
+        resultado += `Score: ${data.score}/150 ${data.recomendacion}<br>`;
+        resultado += `Confianza: ${data.confianza}%<br><br>`;
+        resultado += `<strong>Setup:</strong><br>`;
+        resultado += `Entrada: $${data.entrada}<br>`;
+        resultado += `Target 1: $${data.target1}<br>`;
+        resultado += `Target 2: $${data.target2}<br>`;
+        resultado += `Stop Loss: $${data.stopLoss}<br><br>`;
+        resultado += `<strong>Reasoning:</strong><br>`;
+        data.detalles.forEach(d => {
+          resultado += `${d.puntos > 0 ? '✓' : '✗'} ${d.factor}: ${d.puntos > 0 ? '+' : ''}${d.puntos} pts<br>`;
+        });
+        
+        addMessage('system', resultado);
+      } catch (error) {
+        addMessage('system', `❌ Error: ${error.message}`);
+      }
+    }
+    
+    // ===== OBTENER NOTICIAS =====
+    async function obtenerNoticias(ticker) {
+      try {
+        const response = await fetch(API_URL + `/news/${ticker}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+          addMessage('system', `❌ Error: ${data.error}`);
+          return;
+        }
+        
+        // Remover loading
+        const messages = chatMessages.querySelectorAll('.message');
+        messages[messages.length - 1].remove();
+        
+        let resultado = `📰 <strong>Noticias de ${data.ticker}</strong><br><br>`;
+        data.noticias.slice(0, 5).forEach((news, idx) => {
+          resultado += `${idx+1}. <strong>${news.titulo}</strong><br>`;
+          resultado += `   Fuente: ${news.source}<br><br>`;
+        });
+        
+        addMessage('system', resultado);
+      } catch (error) {
+        addMessage('system', `❌ Error: ${error.message}`);
+      }
+    }
+    
+    // ===== PROCESAR PREGUNTA GENERAL =====
+    async function procesarPreguntaGeneral(text) {
+      // Remover loading
+      const messages = chatMessages.querySelectorAll('.message');
+      messages[messages.length - 1].remove();
+      
+      addMessage('system', `Tu pregunta: "${text}"<br><br>Para análisis específico, use:<br>• "Análisis Europa" / "Análisis USA"<br>• "AAPL", "MSFT", "NVDA" (stocks específicos)<br>• "Noticias de AAPL" (para noticias)`);
+    }
+    
+    // ===== INIT =====
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    
+    // Verificar backend al cargar
+    checkBackend();
+    setInterval(checkBackend, 10000);
+  </script>
+</body>
+</html>
