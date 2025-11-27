@@ -88,6 +88,36 @@
       font-weight: 500;
     }
     
+    .menu-item.submenu {
+      padding-left: 24px;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    
+    .sector-label {
+      font-size: 10px;
+      padding: 6px 12px;
+      color: rgba(232, 237, 239, 0.6);
+      margin: 8px 0 4px 0;
+    }
+    
+    .select-control {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      margin: 8px 0;
+      width: 100%;
+    }
+    
+    .select-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(255,255,255,0.08);
+    }
+    
     /* ===== CENTER PANEL ===== */
     .panel-center {
       flex: 1;
@@ -139,6 +169,16 @@
     .message.system .message-content {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sector-info {
+      background: rgba(50, 184, 198, 0.1);
+      border-left: 3px solid var(--primary);
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.6;
     }
     
     .chat-input-area {
@@ -228,18 +268,6 @@
       gap: 6px;
     }
     
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    
-    .badge.success { background: rgba(50, 184, 152, 0.2); color: var(--success); }
-    .badge.warning { background: rgba(168, 75, 47, 0.2); color: var(--warning); }
-    .badge.error { background: rgba(192, 21, 47, 0.2); color: var(--error); }
-    
     .loading {
       display: inline-block;
       width: 16px;
@@ -253,30 +281,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
-    .recommendation {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 8px;
-      font-size: 12px;
-    }
-    
-    .recommendation h4 {
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-    
-    .rec-detail {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .rec-detail:last-child { border-bottom: none; }
     
     ::-webkit-scrollbar {
       width: 6px;
@@ -302,37 +306,43 @@
     <div class="panel-left">
       <div class="panel-header">
         <h2>📊 Trading Dashboard</h2>
-        <p>Datos Reales en Vivo v1.0</p>
+        <p>Datos Reales en Vivo v2.0</p>
       </div>
       
       <div class="menu-section">
-        <h3>Mercados</h3>
+        <h3>Mercados por Hora</h3>
         <div class="menu-item active" onclick="selectMenu('europa', this)">
-          <span>🌅</span> Análisis Europeo
+          <span>🌅</span> Europa (8 AM)
         </div>
         <div class="menu-item" onclick="selectMenu('usa', this)">
-          <span>🌙</span> Análisis USA
+          <span>🌙</span> USA (2:30 PM)
         </div>
       </div>
       
       <div class="menu-section">
-        <h3>Análisis</h3>
-        <div class="menu-item" onclick="selectMenu('earnings', this)">
-          <span>📈</span> Earnings
-        </div>
-        <div class="menu-item" onclick="selectMenu('aprendizajes', this)">
-          <span>🧠</span> Ver Aprendizajes
-        </div>
-        <div class="menu-item" onclick="selectMenu('historico', this)">
-          <span>📋</span> Histórico
-        </div>
+        <h3>Análisis por Sector</h3>
+        <select class="select-control" id="sectorSelect" onchange="selectSector(this.value)">
+          <option value="">Seleccionar sector...</option>
+          <option value="tech">💻 Tecnología</option>
+          <option value="banks">🏦 Banca</option>
+          <option value="energy">⚡ Energía</option>
+          <option value="pharma">💊 Farmacéutica</option>
+          <option value="retail">🛒 Retail</option>
+          <option value="industrial">🏭 Industrial</option>
+        </select>
+        <div id="sectorInfo" style="display: none;" class="sector-info"></div>
+      </div>
+      
+      <div class="menu-section">
+        <h3>Análisis Custom</h3>
+        <input type="text" id="customStocks" class="select-control" placeholder="Ej: AAPL,MSFT,GOOGL" />
+        <button onclick="analizarCustom()" style="width: 100%; padding: 8px; margin-top: 8px; background: var(--primary); border: none; border-radius: 6px; color: white; cursor: pointer;">
+          🔍 Analizar
+        </button>
       </div>
       
       <div class="menu-section">
         <h3>Sistema</h3>
-        <div class="menu-item" onclick="selectMenu('config', this)">
-          <span>⚙️</span> Configuración
-        </div>
         <div class="menu-item" onclick="selectMenu('ayuda', this)">
           <span>❓</span> Ayuda
         </div>
@@ -344,19 +354,21 @@
       <div class="chat-messages" id="chatMessages">
         <div class="message system">
           <div class="message-content">
-            👋 <strong>¡Bienvenido al Trading Dashboard!</strong><br><br>
-            Tengo datos REALES de internet en vivo. Puedo:<br>
-            • Analizar mercados europeos y USA<br>
-            • Mostrar scores 0-150 con reasoning<br>
-            • Aprender de tus resultados<br>
-            • Mejorar automáticamente<br><br>
-            <strong>¿Qué quieres hacer?</strong>
+            👋 <strong>¡Bienvenido Trading Dashboard v2!</strong><br><br>
+            <strong>Nuevas opciones:</strong><br>
+            • 📈 Análisis por hora (Europa/USA)<br>
+            • 🎯 Análisis por sector (Tech, Banca, etc)<br>
+            • 🔧 Stocks personalizados<br>
+            • 📊 Datos reales en vivo<br>
+            • 💡 Reasoning automático<br><br>
+            <strong>¿Por qué elijo esos stocks?</strong><br>
+            Cada opción analiza empresas líderes en su sector con alto volumen y datos confiables.
           </div>
         </div>
       </div>
       
       <div class="chat-input-area">
-        <textarea class="chat-input" id="userInput" placeholder="Escribe tu pregunta..." rows="1"></textarea>
+        <textarea class="chat-input" id="userInput" placeholder="Escribe pregunta o ticker..." rows="1"></textarea>
         <button class="btn-send" onclick="sendMessage()">→</button>
       </div>
     </div>
@@ -371,9 +383,7 @@
       <div class="panel-right-body" id="metricsPanel">
         <div class="metric-card">
           <div class="metric-label">Estado del Sistema</div>
-          <div class="metric-value">
-            🟢 Conectado
-          </div>
+          <div class="metric-value">🟢 Conectado</div>
         </div>
         
         <div class="metric-card">
@@ -384,16 +394,14 @@
         </div>
         
         <div class="metric-card">
-          <div class="metric-label">Accuracy Histórica</div>
-          <div class="metric-value">--</div>
+          <div class="metric-label">Versión</div>
+          <div class="metric-value">v2.0</div>
         </div>
         
         <div class="metric-card">
-          <div class="metric-label">Win Rate</div>
-          <div class="metric-value">--</div>
+          <div class="metric-label">Última Actualización</div>
+          <div id="lastUpdate" class="metric-value">--</div>
         </div>
-        
-        <div id="recommendationsPanel"></div>
       </div>
     </div>
   </div>
@@ -402,10 +410,9 @@
     const userInput = document.getElementById('userInput');
     const chatMessages = document.getElementById('chatMessages');
     const backendStatus = document.getElementById('backendStatus');
-    let currentMenu = 'europa';
-    
-    // API Backend URL - CORREGIDO
     const API_URL = '/api';
+    let currentMenu = 'europa';
+    let currentSector = null;
     
     // ===== VERIFICAR BACKEND =====
     async function checkBackend() {
@@ -422,30 +429,55 @@
         }
       } catch (error) {
         backendStatus.innerHTML = '🔴 Offline';
-        console.error('Backend check failed:', error);
       }
     }
     
     // ===== SELECCIONAR MENÚ =====
     function selectMenu(menu, element) {
-      document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
+      if (element) {
+        document.querySelectorAll('.menu-item:not(.submenu)').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+      }
       currentMenu = menu;
+      currentSector = null;
       
       const mensajes = {
-        europa: '🌅 Análisis de Mercado Europeo\n\nEscribe la hora (ej: "8 AM") o pregunta directa.',
-        usa: '🌙 Análisis de Mercado USA\n\nEscribe la hora (ej: "2:30 PM") o pregunta directa.',
-        earnings: '📈 Análisis Post-Earnings\n\nPregunta sobre earnings recientes de un stock.',
-        aprendizajes: '🧠 Ver Aprendizajes\n\nMostraré tu evolución de accuracy y mejoras aplicadas.',
-        historico: '📋 Histórico\n\nÚltimos 30 días de análisis y resultados.',
-        config: '⚙️ Configuración\n\nAjustes del sistema y API keys.',
-        ayuda: '❓ Ayuda\n\nGuía de cómo usar el dashboard.'
+        europa: '🌅 <strong>Análisis Europa - 8 AM</strong><br><br><strong>¿Por qué estos stocks?</strong><br>SAP, ASML, LVMH, SIEMENS, UNILEVER, HSBC, SHELL, SANOFI<br><br>Empresas líderes europeas con:<br>✓ Alto volumen de negociación<br>✓ Datos históricos confiables<br>✓ Diversificación sectorial<br>✓ Presencia global<br><br>Escribe la hora (ej: "8") para actualizar análisis.',
+        usa: '🌙 <strong>Análisis USA - 2:30 PM</strong><br><br><strong>¿Por qué estos stocks?</strong><br>AAPL, MSFT, GOOGL, AMZN, NVDA, TSLA, META, NFLX<br><br>Megacaps tecnológicas con:<br>✓ Capitalización > $1 trilión<br>✓ Volumen extremadamente alto<br>✓ Líderes en IA e innovación<br>✓ Datos de Yahoo Finance verificados<br><br>Escribe la hora (ej: "14") para actualizar.',
+        ayuda: '❓ <strong>Guía de Uso</strong><br><br><strong>1. Mercados por Hora:</strong><br>Análisis automático de 8 stocks cada uno. Datos en vivo de Yahoo Finance.<br><br><strong>2. Análisis por Sector:</strong><br>Elige un sector y verás empresas líderes de ese área.<br><br><strong>3. Custom:</strong><br>Escribe tickers separados por comas (AAPL,TSLA,MSFT)<br><br><strong>Score 0-150:</strong><br>0-65: Esperar | 65-90: Especulativo | 90-110: Moderado | 110+: Agresivo'
       };
       
       addMessage('system', mensajes[menu] || 'Opción seleccionada');
     }
     
-    // ===== AGREGAR MENSAJE AL CHAT =====
+    // ===== SELECCIONAR SECTOR =====
+    async function selectSector(sectorKey) {
+      if (!sectorKey) return;
+      
+      currentSector = sectorKey;
+      currentMenu = null;
+      
+      document.querySelectorAll('.menu-item:not(.submenu)').forEach(el => el.classList.remove('active'));
+      
+      addMessage('system', '<span class="loading"></span> Cargando sector...');
+      
+      try {
+        const response = await fetch(API_URL + `/sectores`, { mode: 'cors' });
+        const data = await response.json();
+        const sector = data.sectores.find(s => s.id === sectorKey);
+        
+        removeLastMessage();
+        addMessage('system', `<strong>🎯 Sector: ${sector.nombre}</strong><br><br>${sector.descripcion}<br><br>Stocks: ${sector.stocks} empresas líderes<br><br>Escribe hora (ej: "9") para analizar.`);
+        
+        document.getElementById('sectorInfo').innerHTML = `<strong>${sector.nombre}</strong><br>${sector.descripcion}`;
+        document.getElementById('sectorInfo').style.display = 'block';
+      } catch (error) {
+        removeLastMessage();
+        addMessage('system', `❌ Error: ${error.message}`);
+      }
+    }
+    
+    // ===== AGREGAR MENSAJE =====
     function addMessage(type, content) {
       const messageEl = document.createElement('div');
       messageEl.className = `message ${type}`;
@@ -457,6 +489,8 @@
       messageEl.appendChild(contentEl);
       chatMessages.appendChild(messageEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      document.getElementById('lastUpdate').innerHTML = new Date().toLocaleTimeString('es-ES');
     }
     
     // ===== REMOVER ÚLTIMO MENSAJE =====
@@ -474,23 +508,17 @@
       
       addMessage('user', text);
       userInput.value = '';
-      
-      // Mostrar loading
-      addMessage('system', '<span class="loading"></span> Buscando datos en internet...');
+      addMessage('system', '<span class="loading"></span> Analizando...');
       
       try {
-        // Procesar según el menú
-        if (currentMenu === 'europa') {
+        if (currentSector) {
+          await analizarSector(text, currentSector);
+        } else if (currentMenu === 'europa') {
           await analizarMercado(text, 'europe');
         } else if (currentMenu === 'usa') {
           await analizarMercado(text, 'usa');
-        } else if (text.includes('AAPL') || text.includes('MSFT') || text.includes('NVDA')) {
-          await analizarStock(text.match(/[A-Z]{1,4}/)[0]);
-        } else if (text.toLowerCase().includes('noticias')) {
-          const ticker = text.match(/[A-Z]{1,4}/)?.[0];
-          if (ticker) await obtenerNoticias(ticker);
         } else {
-          await procesarPreguntaGeneral(text);
+          await procesarTickerDirecto(text);
         }
       } catch (error) {
         removeLastMessage();
@@ -498,21 +526,12 @@
       }
     }
     
-    // ===== ANALIZAR MERCADO =====
-    async function analizarMercado(hora, market) {
+    // ===== ANALIZAR SECTOR =====
+    async function analizarSector(hora, sector) {
       try {
-        const horaMatch = hora.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?|(\d{1,2})/i);
-        const horaTexto = horaMatch ? horaMatch[0] : '8';
+        const response = await fetch(API_URL + `/market/sector/${sector}/${hora}`, { mode: 'cors' });
         
-        const response = await fetch(API_URL + `/market/${market}/${horaTexto}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          mode: 'cors'
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         const data = await response.json();
         
@@ -522,8 +541,43 @@
           return;
         }
         
-        // Procesar recomendaciones
-        let resultado = `📊 <strong>Análisis ${market === 'europe' ? 'Europeo' : 'USA'} a las ${data.hour}</strong><br><br>`;
+        removeLastMessage();
+        
+        let resultado = `📊 <strong>${data.sectorInfo.descripcion}</strong><br><br>`;
+        resultado += `✅ ${data.total} empresas analizadas<br>`;
+        resultado += `🎯 Top recomendaciones:<br><br>`;
+        
+        data.recommendations.slice(0, 5).forEach((rec, idx) => {
+          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
+          resultado += `   ${rec.recomendacion}<br>`;
+          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
+        });
+        
+        addMessage('system', resultado);
+      } catch (error) {
+        removeLastMessage();
+        addMessage('system', `❌ Error al obtener datos: ${error.message}`);
+      }
+    }
+    
+    // ===== ANALIZAR MERCADO =====
+    async function analizarMercado(hora, market) {
+      try {
+        const response = await fetch(API_URL + `/market/${market}/${hora}`, { mode: 'cors' });
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          removeLastMessage();
+          addMessage('system', `❌ Error: ${data.error}`);
+          return;
+        }
+        
+        removeLastMessage();
+        
+        let resultado = `📊 <strong>Análisis ${market === 'europe' ? 'Europeo' : 'USA'} - ${data.hour}</strong><br><br>`;
         resultado += `✅ ${data.total} activos analizados<br>`;
         resultado += `🎯 Top recomendaciones:<br><br>`;
         
@@ -533,7 +587,6 @@
           resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
         });
         
-        removeLastMessage();
         addMessage('system', resultado);
       } catch (error) {
         removeLastMessage();
@@ -541,53 +594,26 @@
       }
     }
     
-    // ===== ANALIZAR STOCK INDIVIDUAL =====
-    async function analizarStock(ticker) {
+    // ===== ANALIZAR CUSTOM =====
+    async function analizarCustom() {
+      const stocks = document.getElementById('customStocks').value.trim();
+      if (!stocks) {
+        addMessage('system', '❌ Ingresa al menos un ticker');
+        return;
+      }
+      
+      addMessage('user', `Analizando: ${stocks}`);
+      addMessage('system', '<span class="loading"></span> Cargando datos personalizados...');
+      
       try {
-        const response = await fetch(API_URL + '/analyze', {
+        const response = await fetch(API_URL + `/market/custom/now`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ticker }),
+          body: JSON.stringify({ stocks: stocks }),
           mode: 'cors'
         });
         
-        const data = await response.json();
-        
-        if (!data.success) {
-          removeLastMessage();
-          addMessage('system', `❌ No se encontró ${ticker}`);
-          return;
-        }
-        
-        removeLastMessage();
-        
-        let resultado = `📊 <strong>Análisis de ${data.ticker}</strong><br><br>`;
-        resultado += `Precio: $${data.precio.toFixed(2)} (${data.cambio > 0 ? '⬆️' : '⬇️'} ${data.cambio.toFixed(2)}%)<br>`;
-        resultado += `Score: ${data.score}/150 ${data.recomendacion}<br>`;
-        resultado += `Confianza: ${data.confianza}%<br><br>`;
-        resultado += `<strong>Setup:</strong><br>`;
-        resultado += `Entrada: $${data.entrada}<br>`;
-        resultado += `Target 1: $${data.target1}<br>`;
-        resultado += `Target 2: $${data.target2}<br>`;
-        resultado += `Stop Loss: $${data.stopLoss}<br><br>`;
-        resultado += `<strong>Reasoning:</strong><br>`;
-        data.detalles.forEach(d => {
-          resultado += `${d.puntos > 0 ? '✓' : '✗'} ${d.factor}: ${d.puntos > 0 ? '+' : ''}${d.puntos} pts<br>`;
-        });
-        
-        addMessage('system', resultado);
-      } catch (error) {
-        removeLastMessage();
-        addMessage('system', `❌ Error: ${error.message}`);
-      }
-    }
-    
-    // ===== OBTENER NOTICIAS =====
-    async function obtenerNoticias(ticker) {
-      try {
-        const response = await fetch(API_URL + `/news/${ticker}`, {
-          mode: 'cors'
-        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         const data = await response.json();
         
@@ -599,10 +625,13 @@
         
         removeLastMessage();
         
-        let resultado = `📰 <strong>Noticias de ${data.ticker}</strong><br><br>`;
-        data.noticias.slice(0, 5).forEach((news, idx) => {
-          resultado += `${idx+1}. <strong>${news.titulo}</strong><br>`;
-          resultado += `   Fuente: ${news.source}<br><br>`;
+        let resultado = `🔧 <strong>Análisis Custom</strong><br><br>`;
+        resultado += `✅ ${data.total} stocks analizados<br><br>`;
+        
+        data.recommendations.forEach((rec, idx) => {
+          resultado += `${idx+1}. <strong>${rec.ticker}</strong> - Score ${rec.score}/150<br>`;
+          resultado += `   ${rec.recomendacion}<br>`;
+          resultado += `   Entrada: $${rec.entrada} | Target: $${rec.target} | Stop: $${rec.stopLoss}<br><br>`;
         });
         
         addMessage('system', resultado);
@@ -612,10 +641,51 @@
       }
     }
     
-    // ===== PROCESAR PREGUNTA GENERAL =====
-    async function procesarPreguntaGeneral(text) {
-      removeLastMessage();
-      addMessage('system', `Tu pregunta: "${text}"<br><br>Para análisis específico, usa:<br>• "Análisis Europa" / "Análisis USA"<br>• Tickers: "AAPL", "MSFT", "NVDA"<br>• "Noticias de AAPL"`);
+    // ===== PROCESAR TICKER DIRECTO =====
+    async function procesarTickerDirecto(text) {
+      const tickerMatch = text.match(/[A-Z]{1,4}/);
+      if (!tickerMatch) {
+        removeLastMessage();
+        addMessage('system', '💡 Usa: Europa, USA, sector, o ticker (AAPL, MSFT, etc)');
+        return;
+      }
+      
+      try {
+        const response = await fetch(API_URL + '/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker: tickerMatch[0] }),
+          mode: 'cors'
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          removeLastMessage();
+          addMessage('system', `❌ Stock no encontrado`);
+          return;
+        }
+        
+        removeLastMessage();
+        
+        let resultado = `📊 <strong>${data.ticker}</strong><br><br>`;
+        resultado += `Precio: $${data.precio.toFixed(2)} (${data.cambio > 0 ? '⬆️' : '⬇️'} ${data.cambio.toFixed(2)}%)<br>`;
+        resultado += `Score: ${data.score}/150 ${data.recomendacion}<br>`;
+        resultado += `Confianza: ${data.confianza}%<br><br>`;
+        resultado += `<strong>Setup:</strong><br>`;
+        resultado += `Entrada: $${data.entrada}<br>`;
+        resultado += `Target 1: $${data.target1} | Target 2: $${data.target2}<br>`;
+        resultado += `Stop Loss: $${data.stopLoss}<br><br>`;
+        resultado += `<strong>Reasoning:</strong><br>`;
+        data.detalles.forEach(d => {
+          resultado += `${d.puntos > 0 ? '✓' : '✗'} ${d.factor}: ${d.puntos > 0 ? '+' : ''}${d.puntos}<br>`;
+        });
+        
+        addMessage('system', resultado);
+      } catch (error) {
+        removeLastMessage();
+        addMessage('system', `❌ Error: ${error.message}`);
+      }
     }
     
     // ===== INIT =====
@@ -626,9 +696,9 @@
       }
     });
     
-    // Verificar backend al cargar
     checkBackend();
     setInterval(checkBackend, 10000);
+    selectMenu('europa', document.querySelector('.menu-item.active'));
   </script>
 </body>
 </html>
